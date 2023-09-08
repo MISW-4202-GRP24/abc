@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  web:
+    build:
+      context: app
+      target: builder
+    stop_signal: SIGINT
+    environment:
+      DB_CONN: "postgresql://postgres:postgres@db:5432/abc"
+    ports:
+      - "8000:8000"
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_DB=abc
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "15432:5432"
+    networks:
+      - default
