@@ -1,15 +1,6 @@
 version: "3.8"
 
 services:
-  web:
-    build:
-      context: app
-      target: builder
-    stop_signal: SIGINT
-    environment:
-      DB_CONN: "postgresql://postgres:postgres@db:5432/abc"
-    ports:
-      - "8000:8000"
   db:
     image: postgres
     environment:
@@ -20,3 +11,30 @@ services:
       - "15432:5432"
     networks:
       - default
+  web-1:
+    image: attendant-app
+    stop_signal: SIGINT
+    environment:
+      DB_CONN: "postgresql://postgres:postgres@db:5432/abc"
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+  web-2:
+    image: attendant-app
+    stop_signal: SIGINT
+    environment:
+      DB_CONN: "postgresql://postgres:postgres@db:5432/abc"
+    ports:
+      - "8001:8000"
+    depends_on:
+      - db
+  web-3:
+    image: attendant-app
+    stop_signal: SIGINT
+    environment:
+      DB_CONN: "postgresql://postgres:postgres@db:5432/abc"
+    ports:
+      - "8002:8000"
+    depends_on:
+      - db
