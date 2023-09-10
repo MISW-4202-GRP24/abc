@@ -47,3 +47,10 @@ services:
       - "7999:5000"
     depends_on:
       - web-1
+  redis:
+    image: redis/redis-stack-server:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - default
+
