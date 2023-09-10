@@ -38,3 +38,12 @@ services:
       - "8002:8000"
     depends_on:
       - db
+  api-gateway:
+    image: apigateway-app
+    stop_signal: SIGINT
+    environment:
+      ENDPOINTS: "http://web-1:8000,http://web-2:8000,http://web-3:8000"
+    ports:
+      - "7999:5000"
+    depends_on:
+      - web-1
