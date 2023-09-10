@@ -9,13 +9,13 @@ candidates = []
 # Genera 1000 registros
 for _ in range(1000):
     candidate = {
-        'nombre': fake.first_name(),
-        'apellido': fake.last_name(),
-        'edad': random.randint(18, 99),
-        'telefono': fake.phone_number(),
-        'correo': fake.email(),
-        'pais': random.randint(1, 100),
-        'idiomas': [fake.language_code() for _ in range(random.randint(1, 3))]
+        'name': fake.first_name(),
+        'last_name': fake.last_name(),
+        'age': random.randint(18, 99),
+        'phone_number': fake.phone_number(),
+        'email': fake.email(),
+        'country': random.randint(1, 100),
+        'languages': [fake.language_code() for _ in range(random.randint(1, 3))]
     }
     candidates.append(candidate)
 
