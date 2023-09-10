@@ -29,19 +29,6 @@ def post_requests():
     with open("candidates.json", "r") as candidates:
         registers = json.load(candidates)
 
-    responses = []
-
-    for register in registers:
-        args = (
-            "{} {}".format(register["first_name"], register["last_name"]),
-            datetime.utcnow(),
-            100,
-            200,
-        )
-        register_log.apply_async(args=args, queue="logs")
-
-    return
-
     def send_request(register):
         sent = datetime.utcnow()
         start = time.time()
@@ -60,8 +47,7 @@ def post_requests():
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = [executor.submit(send_request, register) for register in registers]
         for future in concurrent.futures.as_completed(futures):
-            response = future.result()
-            responses.append({"status_code": response.status_code})
+            future.result()
 
 
 post_requests()

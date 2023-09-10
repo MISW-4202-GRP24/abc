@@ -6,6 +6,15 @@ import random
 import requests
 from flask_restful import Resource
 from flask import request
+from celery import Celery
+
+redis_endpoint = os.environ.get("REDIS_ENDPOINT", "redis://localhost:6379/0")
+celery_app = Celery(__name__, broker=redis_endpoint)
+
+
+@celery_app.task(name="register_apigateway_log")
+def register_apigateway_log(*args):
+    pass
 
 
 class AttendantView(Resource):
@@ -25,8 +34,16 @@ class AttendantView(Resource):
         end = time.time()
         response_headers = dict(response.headers)
         elapsed = (end - start) * 1000
-        print(
-            f'{datetime.utcnow()}\t{request.method}\t{request.path}\t{response.status_code}\t{elapsed:.2f}\t{response_headers.get("Server-IP")}\t{response_headers.get("Server-Name")}'
+
+        args = (
+            datetime.utcnow(),
+            request.method,
+            request.path,
+            response.status_code,
+            elapsed,
+            response_headers.get("Server-IP"),
+            response_headers.get("Server-Name"),
         )
-        ## aquí el guardado del log
+        register_apigateway_log.apply_async(args=args, queue="logs")
+
         return response

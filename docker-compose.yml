@@ -43,6 +43,7 @@ services:
     stop_signal: SIGINT
     environment:
       ENDPOINTS: "http://web-1:8000,http://web-2:8000,http://web-3:8000"
+      REDIS_ENDPOINT: "redis://redis:6379/0"
     ports:
       - "7999:5000"
     depends_on:

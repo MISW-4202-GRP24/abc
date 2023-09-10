@@ -30,7 +30,13 @@ class AttendantView(Resource):
             return resp
         except Exception as e:
             db.session.rollback()
-            return {
-                "error": e.args[0],
-                "current_timestamp": datetime.utcnow().isoformat(),
-            }, 500
+            resp = make_response(
+                {
+                    "error": e.args[0],
+                    "current_timestamp": datetime.utcnow().isoformat(),
+                },
+                500,
+            )
+            resp.headers.extend({"Server-IP": server_ip})
+            resp.headers.extend({"Server-Name": server_name})
+            return resp
