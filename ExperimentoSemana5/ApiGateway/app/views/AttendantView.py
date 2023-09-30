@@ -23,27 +23,30 @@ period = timedelta(seconds=int(os.environ.get("PERIOD", "60")))
 def register_apigateway_log(*args):
     pass
 
-def user_is_blocked():
-    ## aqui leer si el current user está en la lista negra
-    return current_user["sub"] 
-
 def request_is_limited(
     red: Redis, redis_key: str, redis_limit: int, redis_period: timedelta
-):
+):    
+    
+    if red.sismember('black_list', redis_key):
+        return True
+
     if red.setnx(redis_key, redis_limit):
         red.expire(redis_key, int(redis_period.total_seconds()))
     bucket_val = red.get(redis_key)
     if bucket_val and int(bucket_val) > 0:
         red.decrby(redis_key, 1)
         return False
-    ## aqui guardar en la lista negra
-    return True
+    else:
+        # Usuario superó el límite, agregarlo a la lista negra
+        red.sadd('black_list', redis_key)
+        print(f'Added {redis_key} to black_list set')
+        return True
 
 
 class AttendantView(Resource):
     @JWTUtils.rol_required("admin")
     def post(self):
-        if user_is_blocked() or request_is_limited(
+        if request_is_limited(
             redis_default, "{}".format(current_user["sub"]), limit, period
         ):
             return "Too many requests, please try again later.", 429
