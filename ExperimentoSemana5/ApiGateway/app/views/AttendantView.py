@@ -50,7 +50,41 @@ class AttendantView(Resource):
             redis_default, "{}".format(current_user["sub"]), limit, period
         ):
             return "Too many requests, please try again later.", 429
-        return "ok"
+        return self.send_request()
+
+    def send_request(self):
+        endpoints = os.environ.get("ENDPOINTS", "http://127.0.0.1:6000").split(",")
+        url = "{}/attendant".format(random.choice(endpoints))
+        response = self.send_and_log_request(url)
+        return response.json(), response.status_code
+
+    def send_and_log_request(self, url):
+        start = time.time()
+        response = requests.post(
+            url,
+            data=request.data,
+            headers=request.headers,
+        )
+        end = time.time()
+        response_headers = dict(response.headers)
+        elapsed = (end - start) * 1000
+
+        args = (
+            datetime.utcnow(),
+            request.method,
+            request.path,
+            response.status_code,
+            elapsed,
+            response_headers.get("Server-IP"),
+            response_headers.get("Server-Name"),
+        )
+        register_apigateway_log.apply_async(args=args, queue="logs")
+
+        return response
+    
+class AttendantViewRaw(Resource):
+    def post(self):
+        return self.send_request()
 
     def send_request(self):
         endpoints = os.environ.get("ENDPOINTS", "http://127.0.0.1:6000").split(",")
